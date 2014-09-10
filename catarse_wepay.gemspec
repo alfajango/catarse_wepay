@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.files      = `git ls-files`.split($\)
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
 
-  s.add_dependency "rails", "~> 4.0"
+  s.add_dependency "rails", ">= 3.2.6"
   s.add_dependency "slim-rails"
   s.add_dependency "wepay", "0.0.1"
 
