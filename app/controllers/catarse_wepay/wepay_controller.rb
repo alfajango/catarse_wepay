@@ -95,7 +95,7 @@ class CatarseWepay::WepayController < ApplicationController
       redirect_to main_app.project_backer_path(project_id: backer.project.id, id: backer.id)
     else
       flash[:failure] = t('wepay_error', scope: SCOPE)
-      redirect_to main_app.new_project_contribution_path(contribution.project)
+      redirect_to main_app.new_project_backer_path(backer.project.id, id: backer.id)
     end
   end
 
