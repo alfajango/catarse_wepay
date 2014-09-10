@@ -77,7 +77,7 @@ class CatarseWepay::WepayController < ApplicationController
       ::Airbrake.notify({ :error_class => "WePay Error", :error_message => "WePay Error: #{e.inspect}", :parameters => params}) rescue nil
       Rails.logger.info "-----> #{e.inspect}"
       flash[:failure] = t('wepay_error', scope: SCOPE)
-      return redirect_to main_app.new_project_backer_path(backer.project)
+      return redirect_to main_app.new_project_backer_path(contribution.project)
     end
   end
 
@@ -86,12 +86,13 @@ class CatarseWepay::WepayController < ApplicationController
   end
 
   def success
+    backer = current_user.backs.find params[:id]
     response = gateway.call('/checkout', PaymentEngines.configuration[:wepay_access_token], {
         checkout_id: contribution.payment_token,
     })
     if response['state'] == 'authorized'
       flash[:success] = t('success', scope: SCOPE)
-      redirect_to main_app.project_contribution_path(project_id: contribution.project.id, id: contribution.id)
+      redirect_to main_app.project_backer_path(project_id: backer.project.id, id: backer.id)
     else
       flash[:failure] = t('wepay_error', scope: SCOPE)
       redirect_to main_app.new_project_contribution_path(contribution.project)
