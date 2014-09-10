@@ -2,8 +2,8 @@ en:
   projects:
     contributions:
       refund:
-        success: 'Pedido de reembolso enviado com sucesso!'
-        error: 'OPS! Ocorreu um erro ao tentar enviar o pedido de reembolso.'
+        success: 'Request for reimbursement sent successfully!'
+        error: 'An error occurred while trying to send the request for reimbursement.'
       review:
         wepay: 'WePay'
         international:
