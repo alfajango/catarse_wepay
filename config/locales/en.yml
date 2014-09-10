@@ -8,7 +8,7 @@ en:
         wepay: 'WePay'
         international:
           section_title: 'You will be directed to the WePay site to complete payment.'
-          button: 'Redirect to WePay'
+          button: 'Pay via WePay'
       checkout:
         wepay_cancel: "Your WePay payment was canceled. Please try again."
         wepay_description: "Back project %{project_name}"
