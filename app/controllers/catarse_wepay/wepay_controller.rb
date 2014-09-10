@@ -55,20 +55,27 @@ class CatarseWepay::WepayController < ApplicationController
   end
 
   def pay
-    response = gateway.call('/checkout/create', PaymentEngines.configuration[:wepay_access_token], {
+    begin
+      response = gateway.call('/checkout/create', PaymentEngines.configuration[:wepay_access_token], {
         account_id: PaymentEngines.configuration[:wepay_account_id],
         amount: (contribution.price_in_cents/100).round(2).to_s,
         short_description: t('wepay_description', scope: SCOPE, :project_name => contribution.project.name, :value => contribution.display_value),
         type: 'DONATION',
         redirect_uri: success_wepay_url(id: contribution.id),
         callback_uri: ipn_wepay_index_url(callback_uri_params)
-    })
-    if response['checkout_uri']
-      contribution.update_attributes payment_method: 'WePay', payment_token: response['checkout_id']
-      redirect_to response['checkout_uri']
-    else
+      })
+      if response['checkout_uri']
+        contribution.update_attributes payment_method: 'WePay', payment_token: response['checkout_id']
+        redirect_to response['checkout_uri']
+      else
+        flash[:failure] = t('wepay_error', scope: SCOPE)
+        return redirect_to main_app.new_project_backer_path(project_id: contribution.project.id, id: contribution.id)
+      end
+    rescue Exception => e
+      ::Airbrake.notify({ :error_class => "Wepay Error", :error_message => "Wepay Error: #{e.inspect}", :parameters => params}) rescue nil
+      Rails.logger.info "-----> #{e.inspect}"
       flash[:failure] = t('wepay_error', scope: SCOPE)
-      return redirect_to main_app.edit_project_contribution_path(project_id: contribution.project.id, id: contribution.id)
+      return redirect_to main_app.new_project_backer_path(backer.project)
     end
   end
 
