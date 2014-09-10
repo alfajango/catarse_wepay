@@ -68,11 +68,13 @@ class CatarseWepay::WepayController < ApplicationController
         contribution.update_attributes payment_method: 'WePay', payment_token: response['checkout_id']
         redirect_to response['checkout_uri']
       else
+        ::Airbrake.notify({ :error_class => "WePay Response Error", :error_message => "WePay Response Error: #{response.inspect}", :parameters => params}) rescue nil
+        Rails.logger.info "WePay response error -----> #{response.inspect}"
         flash[:failure] = t('wepay_error', scope: SCOPE)
         return redirect_to main_app.new_project_backer_path(project_id: contribution.project.id, id: contribution.id)
       end
     rescue Exception => e
-      ::Airbrake.notify({ :error_class => "Wepay Error", :error_message => "Wepay Error: #{e.inspect}", :parameters => params}) rescue nil
+      ::Airbrake.notify({ :error_class => "WePay Error", :error_message => "WePay Error: #{e.inspect}", :parameters => params}) rescue nil
       Rails.logger.info "-----> #{e.inspect}"
       flash[:failure] = t('wepay_error', scope: SCOPE)
       return redirect_to main_app.new_project_backer_path(backer.project)
