@@ -27,6 +27,8 @@ class CatarseWepay::WepayController < ApplicationController
       response = gateway.call('/checkout', PaymentEngines.configuration[:wepay_access_token], {
           checkout_id: contribution.payment_token,
       })
+      Rails.logger.info "RECEIVED IPN PARAMS: #{params.inspect}"
+      Rails.logger.info "CHECKOUT RESPONSE: #{response.inspect}"
       PaymentEngines.create_payment_notification contribution_id: contribution.id, extra_data: response
       if response["state"]
         case response["state"].downcase
@@ -47,10 +49,12 @@ class CatarseWepay::WepayController < ApplicationController
         :payer_email => response['payer_email']
       })
     else
+      ::Airbrake.notify({ :error_class => "WePay IPN Error", :error_message => "WePay IPN Error: No contribution found", :parameters => params}) rescue nil
       return render status: 500, nothing: true
     end
     return render status: 200, nothing: true
   rescue Exception => e
+    ::Airbrake.notify({ :error_class => "WePay IPN Error", :error_message => "WePay IPN Error: #{e.inspect}", :parameters => params}) rescue nil
     return render status: 500, text: e.inspect
   end
 
