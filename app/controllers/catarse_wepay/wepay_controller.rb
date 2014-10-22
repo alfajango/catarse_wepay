@@ -29,7 +29,7 @@ class CatarseWepay::WepayController < ApplicationController
       })
       Rails.logger.info "RECEIVED IPN PARAMS: #{params.inspect}"
       Rails.logger.info "CHECKOUT RESPONSE: #{response.inspect}"
-      PaymentEngines.create_payment_notification contribution_id: contribution.id, extra_data: response
+      PaymentEngines.create_payment_notification backer_id: contribution.id, extra_data: response
       if response["state"]
         case response["state"].downcase
         when 'captured'
